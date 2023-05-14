@@ -20,6 +20,7 @@
                     </div>
 
                     <x-fields.switcher label="{{__('Paddle Payment Gateway Enable/Disable')}}" name="paddle_status" value="{{$paddle_status}}"/>
+                    <x-fields.switcher label="{{__('Paddle Test Mode Enable/Disable')}}" name="paddle_test_mode" value="{{$paddle_test_mode}}"/>
                     <button type="submit" class="btn btn-gradient-primary mt-5 me-2">{{__('Save Changes')}}</button>
                 </form>
             </div>

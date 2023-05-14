@@ -17,7 +17,8 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
             }
         });
         $paddle_status = current($paddle)->status;
-        return view('paddlepaymentgateway::admin.settings',compact('paddle_status'));
+        $paddle_test_mode = current($paddle)->test_mode;
+        return view('paddlepaymentgateway::admin.settings',compact('paddle_status','paddle_test_mode'));
     }
 
     public function settingsUpdate(Request $request){
@@ -32,6 +33,7 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
             "paddle_public_key" => "required|string",
         ]);
 
+        update_static_option("paddle_test_mode",$request->paddle_test_mode);
         update_static_option("paddle_vendor_id",$request->paddle_vendor_id);
         update_static_option("paddle_vendor_auth_code",$request->paddle_vendor_auth_code);
         update_static_option("paddle_yearly_subscription_product_id",$request->paddle_yearly_subscription_product_id);
@@ -41,6 +43,7 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
         //if ($request->has("paddle_status")){
             $jsonModifier = json_decode(file_get_contents("core/Modules/PaddlePaymentGateway/module.json"));
             $jsonModifier->nazmartMetaData->paymentGateway->status = $request?->paddle_status === 'on';
+            $jsonModifier->nazmartMetaData->paymentGateway->test_mode = $request?->paddle_test_mode === 'on';
             file_put_contents("core/Modules/PaddlePaymentGateway/module.json",json_encode($jsonModifier));
         //}
 

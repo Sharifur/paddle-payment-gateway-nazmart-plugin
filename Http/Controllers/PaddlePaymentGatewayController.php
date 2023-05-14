@@ -101,6 +101,7 @@ class PaddlePaymentGatewayController extends Controller
 
     private function getBaseUrl($prefix = "vendor",$version="2.0",$sandbox=true){
         //sandbox-
+        $sandbox = get_static_option('paddle_test_mode') === 'on';
         $sandbox_prefix = $sandbox ? "sandbox-" : "";
         //todo: check test mode enable or not, return base url based on the mode
         return "https://".$sandbox_prefix.$prefix.".paddle.com/api/".$version."/";
