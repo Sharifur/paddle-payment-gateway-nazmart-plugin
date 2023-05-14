@@ -29,14 +29,15 @@ class PaddlePaymentGatewayController extends Controller
         //detect it is coming from which method for which kind of payment
 //        dd($args);
         //detect it for landlord or tenant website
-        if (in_array($args["payment_type"],["price_plan","deposit"]) && $args["payment_for"] === "landlord"){
+        if (in_array($args["payment_type"],["price_plan"]) && $args["payment_for"] === "landlord"){
             return $this->chargeCustomerForLandlordPricePlanPurchase($args);
         }
-        // all tenant payment process will from here....
-        if (in_array($args["payment_type"],["shop_checkout"]) && $args["payment_for"] === "tenant"){
-            return $this->chargeCustomerForLandlordPricePlanPurchase($args);
-        }
-        abort(404);
+        return back()->with(['msg' => __("paddle payment gateway is not available for this purpose"),'type' => 'danger']);
+//        // all tenant payment process will from here....
+//        if (in_array($args["payment_type"],["shop_checkout"]) && $args["payment_for"] === "tenant"){
+//            return $this->chargeCustomerForLandlordPricePlanPurchase($args);
+//        }
+        abort(501,__("paddle payment gateway is not available for this purpose"));
     }
 
     private function chargeCustomerForLandlordPricePlanPurchase($args)
