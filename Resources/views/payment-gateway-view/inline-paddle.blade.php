@@ -15,8 +15,13 @@
 <script type="text/javascript">
     //if user select paddle then hide send a request to the server with all order info so that i can send users to paddle server for overlay checkout
     window.addEventListener("DOMContentLoaded", (event) => {
+
+        @if(request()->is("landlord/wallet-history*"))
+            document.querySelector('.payment-gateway-wrapper li[data-gateway="paddle"]').style.display = "none";
+        @endif
+
         let formSubmitButton = document.querySelector("form.contact-page-form.order-form button[type='submit']");
-        var selectedPaymentGateway = document.querySelector('input[name="payment_gateway"]').value;
+        var selectedPaymentGateway = document.querySelector('input[name="payment_gateway"]')?.value;
         let paymentGatewayRenderLi = document.querySelectorAll(".payment-gateway-wrapper ul li");
         if( selectedPaymentGateway === "paddle"){
             formSubmitButton.style.display = "none";
@@ -52,7 +57,9 @@
                     {{--data-customer="test name"--}}
                     {{--data-passthrough="{{json_encode(["order_id" => 123])}}"--}}
                     {{--data-email="email@example.com"--}}
-
+                    if(data.success === "danger"){
+                        return;
+                    }
                     paddleButton.setAttribute("data-product",data.product_id);
                     paddleButton.setAttribute("data-title",data.title);
                     paddleButton.setAttribute("data-customer",data.customer_name);
