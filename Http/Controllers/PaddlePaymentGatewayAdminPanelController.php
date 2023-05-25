@@ -3,8 +3,10 @@
 namespace Modules\PaddlePaymentGateway\Http\Controllers;
 
 use App\Helpers\ModuleMetaData;
+use App\Models\PricePlan;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\PaddlePaymentGateway\Entities\PaddleProduct;
 use Modules\PaddlePaymentGateway\Http\Helpers\JsonDataModifier;
 
 class PaddlePaymentGatewayAdminPanelController extends Controller
@@ -18,7 +20,9 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
         });
         $paddle_status = current($paddle)->status;
         $paddle_test_mode = current($paddle)->test_mode;
-        return view('paddlepaymentgateway::admin.settings',compact('paddle_status','paddle_test_mode'));
+        $all_price_plans = PricePlan::all();
+        $all_paddle_products = PaddleProduct::all();
+        return view('paddlepaymentgateway::admin.settings',compact('paddle_status','paddle_test_mode','all_price_plans','all_paddle_products'));
     }
 
     public function settingsUpdate(Request $request){
@@ -53,5 +57,38 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
 
 
         return back()->with(['msg' => __('Settings updated'),'msg' => 'success']);
+    }
+
+    public function productInsert(Request $request){
+        $request->validate([
+            "price_plan_id"  => "required",
+            "product_id"  => "required"
+        ]);
+
+        PaddleProduct::create([
+            "price_plan_id"  => $request->price_plan_id,
+            "product_id"  => $request->product_id
+        ]);
+
+        return back()->with(['msg' => __('New Paddle Product Added'),'type' => 'success']);
+    }
+    public function productUpdate(Request $request){
+        $request->validate([
+            "price_plan_id"  => "required",
+            "product_id"  => "required",
+            "id"  => "required",
+        ]);
+        PaddleProduct::find($request->id)->update([
+            "price_plan_id"  => $request->price_plan_id,
+            "product_id"  => $request->product_id
+        ]);
+        return back()->with(['msg' => __('Settings updated'),'type' => 'success']);
+    }
+    public function productDelete(Request $request){
+        $request->validate([
+            "id"  => "required",
+        ]);
+        PaddleProduct::find($request->id)->delete();
+        return "ok";
     }
 }

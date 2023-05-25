@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Modules\PaddlePaymentGateway\Entities\PaddleProduct;
 use Xgenious\Paymentgateway\Base\PaymentGatewayHelpers;
 use Xgenious\Paymentgateway\Facades\XgPaymentGateway;
 
@@ -30,9 +31,23 @@ class PaddlePaymentGatewayController extends Controller
 //        dd($args);
         //detect it for landlord or tenant website
         if (in_array($args["payment_type"],["price_plan"]) && $args["payment_for"] === "landlord"){
-            return $this->chargeCustomerForLandlordPricePlanPurchase($args);
+            //get product id
+            $paddleProduct = PaddleProduct::where(["price_plan_id" => $args["payment_details"]["package_id"]])->first();
+//            dd($paddleProduct);
+            $returnData = [
+                "type" => "success",
+                "vendor_id"=> get_static_option("paddle_vendor_id"),
+                "product_id" => $paddleProduct?->product_id,
+                "title"=> $args["payment_details"]["package_name"],
+                "customer_name"=> $args["payment_details"]["name"],
+                "customer_email"=> $args["payment_details"]["email"],
+                "return_url"=> $args["success_url"],
+                "passthrough" => json_encode(["order_id" => XgPaymentGateway::wrapped_id($args["payment_details"]['id']),"payment_type" => $args["payment_type"],'is_subscription' => 0]), //order id and order type, 'is_subscription' => 0 -> means one time payment
+            ];
+            return response()->json($returnData);
+            //return $this->chargeCustomerForLandlordPricePlanPurchase($args);
         }
-        return back()->with(['msg' => __("paddle payment gateway is not available for this purpose"),'type' => 'danger']);
+        return response()->json(['msg' => __("paddle payment gateway is not available for this purpose"),'type' => 'danger']);
 //        // all tenant payment process will from here....
 //        if (in_array($args["payment_type"],["shop_checkout"]) && $args["payment_for"] === "tenant"){
 //            return $this->chargeCustomerForLandlordPricePlanPurchase($args);

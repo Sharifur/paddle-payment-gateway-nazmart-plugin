@@ -43,6 +43,10 @@ Route::group(['middleware' => ['auth:admin','adminglobalVariable', 'set_lang'],'
     Route::prefix('paddlepaymentgateway')->group(function() {
         Route::get('/settings', [\Modules\PaddlePaymentGateway\Http\Controllers\PaddlePaymentGatewayAdminPanelController::class,"settings"])->name("paddle.landlord.admin.settings");
         Route::post('/settings', [\Modules\PaddlePaymentGateway\Http\Controllers\PaddlePaymentGatewayAdminPanelController::class,"settingsUpdate"]);
+
+        Route::post('/settings/products/insert', [\Modules\PaddlePaymentGateway\Http\Controllers\PaddlePaymentGatewayAdminPanelController::class,"productInsert"])->name("paddle.landlord.admin.settings.product.insert");
+        Route::post('/settings/products/update', [\Modules\PaddlePaymentGateway\Http\Controllers\PaddlePaymentGatewayAdminPanelController::class,"productUpdate"])->name("paddle.landlord.admin.settings.product.update");
+        Route::post('/settings/products/delete', [\Modules\PaddlePaymentGateway\Http\Controllers\PaddlePaymentGatewayAdminPanelController::class,"productDelete"])->name("paddle.landlord.admin.settings.product.delete");
     });
 });
 
