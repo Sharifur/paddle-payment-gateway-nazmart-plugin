@@ -68,17 +68,17 @@ class PaddlePaymentGatewayController extends Controller
         $payment_params = [
             "vendor_id"=> get_static_option("paddle_vendor_id"),
             "vendor_auth_code"=> get_static_option("paddle_vendor_auth_code"),
-           "product_id" => get_static_option("paddle_onetime_subscription_product_id"),
-           "title"=> $args["payment_details"]["package_name"],
+            "product_id" => get_static_option("paddle_onetime_subscription_product_id"),
+            "title"=> $args["payment_details"]["package_name"],
 //           "webhook_url"=> route("paddlepaymentgateway.landlord.price.plan.ipn"), //not work on localhost. also it is not required when you provide product id
-           "prices"=> [sprintf("%s:%s",get_static_option('site_global_currency',"USD"),$args['total'])], //set price per currency
+            "prices"=> [sprintf("%s:%s",get_static_option('site_global_currency',"USD"),$args['total'])], //set price per currency
 //           "custom_message"=> "this is test message", // a message shown in checkout page below title
-           //"image_url"=> "https://xgenious.com/wp-content/uploads/2022/07/Group-1171274812.png",
-           "return_url"=> $args["success_url"]."?checkout={checkout_hash}", //success url with checkout hash, can use it as get ipn as well, but for paddle it prepared to use webhook to track payment
-           "quantity_variable"=> 0, //not allow to user to change quantity at checkout page
-           "expires"=> Carbon::today()->addDays(2)->format("Y-m-d"), //this url will be expired after 2days
-           "customer_name"=> $args["payment_details"]["name"],
-           "customer_email"=> $args["payment_details"]["email"],
+            //"image_url"=> "https://xgenious.com/wp-content/uploads/2022/07/Group-1171274812.png",
+            "return_url"=> $args["success_url"]."?checkout={checkout_hash}", //success url with checkout hash, can use it as get ipn as well, but for paddle it prepared to use webhook to track payment
+            "quantity_variable"=> 0, //not allow to user to change quantity at checkout page
+            "expires"=> Carbon::today()->addDays(2)->format("Y-m-d"), //this url will be expired after 2days
+            "customer_name"=> $args["payment_details"]["name"],
+            "customer_email"=> $args["payment_details"]["email"],
             "passthrough" => json_encode(["order_id" => XgPaymentGateway::wrapped_id($args["payment_details"]['id']),"payment_type" => $args["payment_type"],'is_subscription' => 0]), //order id and order type, 'is_subscription' => 0 -> means one time payment
 
 //           "recurring_prices"=> "",
@@ -102,9 +102,9 @@ class PaddlePaymentGatewayController extends Controller
         ];
 
         $req = Http::post($this->getBaseUrl(
-            prefix: "vendors",
-            version: "2.0",
-            sandbox: true
+                prefix: "vendors",
+                version: "2.0",
+                sandbox: true
             )."product/generate_pay_link",$payment_params);
         $checkout_url = $req->object();
         if (property_exists($checkout_url,"success") && $checkout_url->success){
@@ -165,9 +165,10 @@ class PaddlePaymentGatewayController extends Controller
               'p_signature' => 'NbG6NxJ9DtQr9H1rsMr8dJ/RL05HqcuZbnIOFzPV78n+JZzUhyPwSXrpe2NR1EJjhdsoIQtesIomrstkEnVkKMPrL7TveXc9LI9S+Yv4GqysoMF5fwLPATcID9dm+i8P3NkV2zwtuV+ErajI/2Rw0XhAyYTf3fsDAR5g8ukNm+WnJLi2z+57oZp4OiOlPygs/95grcfsoVUSXQf0CEzTwBn/mLRhQj0Ol0lYQQ29xPaHcWELEBpAp+95aY+boX0RRup9k3hkCXtHYMazED1qahDeciNAZQLUwJyc59SNo7xF5lcur2Cuvgtq1SHHtztEgR6s4dd76BwLUFoW+oSTPSUbJFn+uCndW7UwO00xN1xwY1RAJGHkpSoypCfdj4KJ8P8qBF1vqaNGUWp4EOyl3RTYpVgv4aqwFvKEfbx1t4pwecInl0AmdxWYDkNvLKPM0a2T8hUeOt4n4fBfrnF2TPwCFGPAJ6DCxvA25FfED1+ht4bma4+RHbyAGi1AFfcCFuQThaiTkpWJy/JBkrxUsYsZns+hk4lGrfyk33nf9oJQKEcZvRazDi7C1SfR22Ai+oMi8xshmey3f5aWqnSEASqL9AK1+bnRssv7zNgK4XUHY1rDNaQkEEe2ywfX4QLycfNvmrGZa64GxDXejXxi8Fs5T3gVPPWUbBogVytc9zc=',
          )
         */
-        \Log::info($request->all());
+        // \Log::info($request->all());
 
         $passthrough = json_decode($request->passthrough,true);
+        // Log::info($passthrough);
         $is_subscription = $passthrough['is_subscription'] ?? 0;
         $transaction_id_column = $is_subscription == 1 ? 'order_id' : 'p_order_id';
         $transaction_id = "paddle_order_id_".$request[$transaction_id_column] ?? '';
@@ -188,7 +189,7 @@ class PaddlePaymentGatewayController extends Controller
         $verification = openssl_verify($data, $signature, $public_key, OPENSSL_ALGO_SHA1);
 
         if($verification == 1) {
-            \Log::info('Yay! Signature is valid!');
+            // \Log::info('Yay! Signature is valid!');
             echo 'Yay! Signature is valid!';
 
             $payment_data = [
@@ -211,7 +212,7 @@ class PaddlePaymentGatewayController extends Controller
 
         }
 
-        Log::info("paddle payment verified failed...");
+        // Log::info("paddle payment verified failed...");
 
 
 
@@ -439,7 +440,7 @@ class PaddlePaymentGatewayController extends Controller
             "customer_email"=> $args["payment_details"]["email"],
             "passthrough" => json_encode(["order_id" => XgPaymentGateway::wrapped_id($args["payment_details"]['id']),"payment_type" => $args["payment_type"],'is_subscription' => 1]), //order id and order type
 
-           "recurring_prices"=> [sprintf("%s:%s",get_static_option('site_global_currency',"USD"),$args['total'])],
+            "recurring_prices"=> [sprintf("%s:%s",get_static_option('site_global_currency',"USD"),$args['total'])],
 //           "trial_days"=> "",
 //           "coupon_code"=> "",
 //           "discountable"=> "",

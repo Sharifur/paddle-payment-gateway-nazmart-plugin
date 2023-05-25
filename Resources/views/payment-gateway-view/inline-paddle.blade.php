@@ -17,7 +17,7 @@
     window.addEventListener("DOMContentLoaded", (event) => {
 
         @if(request()->is("landlord/wallet-history*"))
-            document.querySelector('.payment-gateway-wrapper li[data-gateway="paddle"]').style.display = "none";
+        document.querySelector('.payment-gateway-wrapper li[data-gateway="paddle"]').style.display = "none";
         @endif
 
         let formSubmitButton = document.querySelector("form.contact-page-form.order-form button[type='submit']");
@@ -34,7 +34,7 @@
             // formContainer.addEventListener("submit",function (event){
             //     event.preventDefault();
             //
-            // })¥
+            // })짜
             var paddleButton = document.getElementById("paddle_trigger_button");
             //todo submit ajax requwest with all the below information then get json response from the paddle payment gateway controller
             $.ajax({
@@ -53,10 +53,10 @@
                 success: function(data){
                     // console.log(data);
                     {{--data-product="51090"--}}
-                    {{--data-title="test title"--}}
-                    {{--data-customer="test name"--}}
-                    {{--data-passthrough="{{json_encode(["order_id" => 123])}}"--}}
-                    {{--data-email="email@example.com"--}}
+                        {{--data-title="test title"--}}
+                        {{--data-customer="test name"--}}
+                        {{--data-passthrough="{{json_encode(["order_id" => 123])}}"--}}
+                        {{--data-email="email@example.com"--}}
                     if(data.success === "danger"){
                         return;
                     }
@@ -65,7 +65,7 @@
                     paddleButton.setAttribute("data-customer",data.customer_name);
                     paddleButton.setAttribute("data-email",data.customer_email);
                     paddleButton.setAttribute("data-success",data.return_url);
-                    paddleButton.setAttribute("data-passthrough",JSON.stringify(data.passthrough));
+                    paddleButton.setAttribute("data-passthrough",data.passthrough);
                     paddleButton.dispatchEvent(new MouseEvent("click"));
                     //todo triggle paddle button with data
                 },

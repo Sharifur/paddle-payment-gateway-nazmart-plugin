@@ -30,9 +30,9 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
         $request->validate([
             "paddle_vendor_id" => "required|string",
             "paddle_vendor_auth_code" => "required|string",
-            "paddle_yearly_subscription_product_id" => "required|string",
-            "paddle_monthly_subscription_product_id" => "required|string",
-            "paddle_onetime_subscription_product_id" => "required|string",
+//            "paddle_yearly_subscription_product_id" => "required|string",
+//            "paddle_monthly_subscription_product_id" => "required|string",
+//            "paddle_onetime_subscription_product_id" => "required|string",
             "paddle_status" => "nullable|string",
             "paddle_public_key" => "required|string",
         ]);
@@ -40,9 +40,9 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
         update_static_option("paddle_test_mode",$request->paddle_test_mode);
         update_static_option("paddle_vendor_id",$request->paddle_vendor_id);
         update_static_option("paddle_vendor_auth_code",$request->paddle_vendor_auth_code);
-        update_static_option("paddle_yearly_subscription_product_id",$request->paddle_yearly_subscription_product_id);
-        update_static_option("paddle_monthly_subscription_product_id",$request->paddle_monthly_subscription_product_id);
-        update_static_option("paddle_onetime_subscription_product_id",$request->paddle_onetime_subscription_product_id);
+//        update_static_option("paddle_yearly_subscription_product_id",$request->paddle_yearly_subscription_product_id);
+//        update_static_option("paddle_monthly_subscription_product_id",$request->paddle_monthly_subscription_product_id);
+//        update_static_option("paddle_onetime_subscription_product_id",$request->paddle_onetime_subscription_product_id);
 
         //if ($request->has("paddle_status")){
             $jsonModifier = json_decode(file_get_contents("core/Modules/PaddlePaymentGateway/module.json"));

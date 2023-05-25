@@ -16,7 +16,7 @@
         <div class="col-6 stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-4">{{__('Paddle Payment Gateway Settings')}}</h4>
+                    <h4 class="card-title mb-4">{{__('Set Paddle product id for price plan')}}</h4>
 
                     <a href="#" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#paddle_product_add">Add New Paddle Product</a>
                     <table class="table table-striped margin-top-30">
@@ -48,9 +48,9 @@
         <div class="col-6 stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-4">{{__('Set Paddle product id for price plan')}}</h4>
+                    <h4 class="card-title mb-4">{{__('Paddle Payment Gateway Settings')}}</h4>
 
-                    <form class="forms-sample" method="post" action="{{route("paddle.landlord.admin.settings.product.insert")}}">
+                    <form class="forms-sample" method="post" action="{{route("paddle.landlord.admin.settings")}}">
                         @csrf
                         <x-fields.input type="text" value="{{get_static_option('paddle_vendor_id')}}" name="paddle_vendor_id" label="{{__('Vendor ID')}}"/>
                         <x-fields.input type="text" value="{{get_static_option('paddle_vendor_auth_code')}}" name="paddle_vendor_auth_code" label="{{__('Vendor Auth Code')}}"/>
