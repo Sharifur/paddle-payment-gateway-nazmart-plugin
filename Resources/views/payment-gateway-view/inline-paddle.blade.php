@@ -38,10 +38,12 @@
             var paddleButton = document.getElementById("paddle_trigger_button");
             var planType = document.querySelector('select[name="subdomain"]').value;
             var subdomainvalue = planType;
+            var customDomain = document.querySelector('input[name="custom_subdomain"]').value;
             console.log(planType)
-            if( planType == "custom_domain__dd"){
-                subdomainvalue = document.querySelector('input[name="custom_subdomain"]').value;
-            }
+            // if( planType == "custom_domain__dd"){
+            //      customDomain = customDomain;
+            //      //customDomain = document.querySelector('input[name="custom_subdomain"]').value;
+            // }
 
             console.log(subdomainvalue)
 
@@ -56,7 +58,7 @@
                     name: document.querySelector('input[name="name"]').value,
                     email: document.querySelector('input[name="email"]').value,
                     subdomain: subdomainvalue,
-                    custom_subdomain:subdomainvalue,
+                    custom_subdomain: planType == "custom_domain__dd" ? subdomainvalue :customDomain,
                     theme_slug: document.querySelector('input[name="theme_slug"]').value,
                     selected_payment_gateway: 'paddle',
                 },

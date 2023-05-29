@@ -28,11 +28,12 @@ class PaddlePaymentGatewayController extends Controller
     public function chargeCustomer($args)
     {
         //detect it is coming from which method for which kind of payment
-//        dd($args);
+        //dd($args);
         //detect it for landlord or tenant website
         if (in_array($args["payment_type"],["price_plan"]) && $args["payment_for"] === "landlord"){
             //get product id
             $paddleProduct = PaddleProduct::where(["price_plan_id" => $args["payment_details"]["package_id"]])->first();
+            //dd($paddleProduct);
 //            dd($paddleProduct);
             $returnData = [
                 "type" => "success",
