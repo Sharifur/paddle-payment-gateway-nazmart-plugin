@@ -71,6 +71,41 @@
                 </div>
             </div>
         </div>
+        
+        
+        <div class="col-12 stretch-card mt-3">
+            <div class="card ">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">{{__('Paddle Subscription History')}}</h4>
+
+                    <table class="table table-striped margin-top-30">
+                        <thead>
+                            <th>ID</th>
+                            <th>Order ID</th>
+                            <th>Subscription ID</th>
+                            <th>Checkout ID</th>
+                        </thead>
+                        <tbody>
+                        @foreach($all_subscriptions as $sub)
+                            <tr>
+                                <td>{{$sub->id}}</td>
+                                <td>{{$sub->order_id}}</td>
+                                <td>{{$sub->subscription_id}}</td>
+                                <td>{{$sub->checkout_id}}</td>
+                                <td> 
+                                    <span class="d-inline-block p-1 alert-{{$sub->status === 0 ? 'danger' : 'success'}}">{{$sub->status === 0 ? 'cancel' : 'active' }}</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
+                    <div class="pagination-wrapper">
+                        {!! $all_subscriptions->links() !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
     <div class="modal fade" id="paddle_product_add" aria-hidden="true">
         <div class="modal-dialog ">

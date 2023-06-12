@@ -36,6 +36,17 @@
             //
             // })짜
             var paddleButton = document.getElementById("paddle_trigger_button");
+            var planType = document.querySelector('select[name="subdomain"]').value;
+            var subdomainvalue = planType;
+            var customDomain = document.querySelector('input[name="custom_subdomain"]').value;
+            console.log(planType)
+            // if( planType == "custom_domain__dd"){
+            //      customDomain = customDomain;
+            //      //customDomain = document.querySelector('input[name="custom_subdomain"]').value;
+            // }
+            
+            console.log(subdomainvalue)
+
             //todo submit ajax requwest with all the below information then get json response from the paddle payment gateway controller
             $.ajax({
                 url : "{{route('landlord.frontend.order.payment.form')}}",
@@ -46,9 +57,10 @@
                     package_id: document.querySelector('input[name="package_id"]').value,
                     name: document.querySelector('input[name="name"]').value,
                     email: document.querySelector('input[name="email"]').value,
-                    subdomain: document.querySelector('input[name="custom_subdomain"]').value,
-                    custom_subdomain: document.querySelector('input[name="custom_subdomain"]').value,
-                    selected_payment_gateway: 'paddle'
+                    subdomain: subdomainvalue,
+                    custom_subdomain: planType == "custom_domain__dd" ? subdomainvalue :customDomain,
+                    theme_slug: document.querySelector('input[name="theme_slug"]').value,
+                    selected_payment_gateway: 'paddle',
                 },
                 success: function(data){
                     // console.log(data);

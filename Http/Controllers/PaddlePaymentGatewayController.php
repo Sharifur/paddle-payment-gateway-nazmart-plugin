@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Modules\PaddlePaymentGateway\Entities\PaddleProduct;
+use Modules\PaddlePaymentGateway\Entities\PaddleSubscriptionHistory;
 use Xgenious\Paymentgateway\Base\PaymentGatewayHelpers;
 use Xgenious\Paymentgateway\Facades\XgPaymentGateway;
 
@@ -28,11 +29,12 @@ class PaddlePaymentGatewayController extends Controller
     public function chargeCustomer($args)
     {
         //detect it is coming from which method for which kind of payment
-//        dd($args);
+        //dd($args);
         //detect it for landlord or tenant website
         if (in_array($args["payment_type"],["price_plan"]) && $args["payment_for"] === "landlord"){
             //get product id
             $paddleProduct = PaddleProduct::where(["price_plan_id" => $args["payment_details"]["package_id"]])->first();
+            //dd($paddleProduct);
 //            dd($paddleProduct);
             $returnData = [
                 "type" => "success",
@@ -170,7 +172,7 @@ class PaddlePaymentGatewayController extends Controller
         $passthrough = json_decode($request->passthrough,true);
         // Log::info($passthrough);
         $is_subscription = $passthrough['is_subscription'] ?? 0;
-        $transaction_id_column = $is_subscription == 1 ? 'order_id' : 'p_order_id';
+        $transaction_id_column = 'order_id';
         $transaction_id = "paddle_order_id_".$request[$transaction_id_column] ?? '';
 
         $public_key_string = file_get_contents("assets/uploads/public.txt");
@@ -191,6 +193,45 @@ class PaddlePaymentGatewayController extends Controller
         if($verification == 1) {
             // \Log::info('Yay! Signature is valid!');
             echo 'Yay! Signature is valid!';
+
+            PaddleSubscriptionHistory::updateOrCreate([
+                'order_id' => PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]),
+                'subscription_id' => \request()->subscription_id,
+            ],[
+                'order_id' => PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]),
+                'subscription_id' => \request()->subscription_id,
+                'user_id' => "00",
+                "checkout_id" =>  \request()->checkout_id,
+                "subscription_payment_id" =>  \request()->subscription_payment_id,
+                "subscription_plan_id" =>  \request()->subscription_plan_id,
+                "paddle_user_id" =>  \request()->paddle_user_id,
+                "status" => 1
+            ]);
+            
+            
+            
+            $all_subscription = PaddleSubscriptionHistory::where('order_id',PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]))->orderBy('id','desc')->get()->skip(1);
+            
+            foreach($all_subscription as $sub){
+                //todo send api request to cancel all the subscription 
+                //todo update status in paddle subscriptoin history table... 
+                
+                  $req = Http::post($this->getBaseUrl(
+                        prefix: "vendors",
+                        version: "2.0",
+                        sandbox: true
+                    )."subscription/users_cancel",[
+                        "vendor_id"=> get_static_option("paddle_vendor_id"),
+                        "vendor_auth_code"=> get_static_option("paddle_vendor_auth_code"),
+                        "subscription_id"=> $sub->subscription_id
+                    ]);
+                $checkout_url = $req->object();
+                $sub->status = 0;
+                $sub->save();
+                //todo cehck if it is success then change status to 0 of this entity 
+            }
+            //todo: check if this user has an existing subscription, cancell all of them through paddle subscription cancel apis. 
+            //todo: show list of active subscription in paddle settings page
 
             $payment_data = [
                 "status" => "complete",
@@ -270,6 +311,8 @@ class PaddlePaymentGatewayController extends Controller
   'p_signature' => 'l2tdMAStpZl15qDQTQef90b0ANYZqW923nZ9Uku0c8lYtkCfRzs22cR/obvn+Vbk0i195H3EmgP/TegahEyq9pFjFxl+L5uVbFXJwVL1YjK3Mp8WMPhSk1dFV4SrB8bV565esRHN3DfmjyjHNrGK6MkqNM26E/OZIw5EBmwX6/Mt+Y3d3lbvOkVA/V77U8Biy26LB4U5Ar0LlijEVmm6UydPbs+QJtTP2ggzC+xeYf4kvUX4Z8sFuxkEUBy1qV7s3XtHEOTdVu/zyJeWW3HCXZEOnscwgzXAN0Eh0bukQhElbebIGwjeaYKc3UPNWfADW2TfQuwYtniCi/MHdOqskKAcDHPy+39KbCQRpQBV03e3eozH7DN51cePWkEuNI7yggn/GgLvEivnHBRTxUy7oJvQyGfSV4z3+RIOWVEENLcO419a0L9RcgAxEuQVzAQdD4jA243HHu4busBHx2Ts+qRF+tkaV8Cl088ZPog33NEzEFR03x/aPDTAEXGw/u2V1iiXa0qNFQPZNBxjqPJQsDotfFfvahXKjQUKcln0VJSLDXcfvctt2IrvoU39rErlSD25OFkAMbi2XZli1xgniiSoURP7PBTAJ4Kx0KMFqObbsEUczDHwVJJAayzON8xeFeB/k2q81CeAp+cMs8RiEsnZngeHQhAQVGk8YZu3n8M=',
 )
          * */
+
+
 
 
         if (isset($payment_data['status']) && $payment_data['status'] === 'complete') {

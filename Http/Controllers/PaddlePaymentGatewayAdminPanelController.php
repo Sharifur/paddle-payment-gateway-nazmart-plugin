@@ -8,10 +8,13 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\PaddlePaymentGateway\Entities\PaddleProduct;
 use Modules\PaddlePaymentGateway\Http\Helpers\JsonDataModifier;
+use Modules\PaddlePaymentGateway\Entities\PaddleSubscriptionHistory;
 
 class PaddlePaymentGatewayAdminPanelController extends Controller
 {
     public function settings(){
+        $all_subscriptions = PaddleSubscriptionHistory::orderBy('id','desc')->paginate(20);
+        
         $all_module_meta_data = (new ModuleMetaData("PaddlePaymentGateway"))->getExternalPaymentGateway();
         $paddle = array_filter($all_module_meta_data,function ( $item ){
             if ($item->name === "Paddle"){
@@ -22,7 +25,7 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
         $paddle_test_mode = current($paddle)->test_mode;
         $all_price_plans = PricePlan::all();
         $all_paddle_products = PaddleProduct::all();
-        return view('paddlepaymentgateway::admin.settings',compact('paddle_status','paddle_test_mode','all_price_plans','all_paddle_products'));
+        return view('paddlepaymentgateway::admin.settings',compact('paddle_status','paddle_test_mode','all_price_plans','all_paddle_products','all_subscriptions'));
     }
 
     public function settingsUpdate(Request $request){
