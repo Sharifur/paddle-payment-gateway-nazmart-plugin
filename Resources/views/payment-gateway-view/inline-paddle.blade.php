@@ -39,17 +39,13 @@
             var planType = document.querySelector('select[name="subdomain"]').value;
             var subdomainvalue = planType;
             var customDomain = document.querySelector('input[name="custom_subdomain"]').value;
-            console.log(planType)
+            // console.log(planType)
             // if( planType == "custom_domain__dd"){
             //      customDomain = customDomain;
             //      //customDomain = document.querySelector('input[name="custom_subdomain"]').value;
             // }
-<<<<<<< HEAD
-            
-=======
 
->>>>>>> 6f337654dad7f3c5b4dd0a49d316e049c0e5bde9
-            console.log(subdomainvalue)
+            // console.log(subdomainvalue)
 
             //todo submit ajax requwest with all the below information then get json response from the paddle payment gateway controller
             $.ajax({
