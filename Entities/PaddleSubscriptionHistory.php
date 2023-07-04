@@ -18,8 +18,10 @@ class PaddleSubscriptionHistory extends Model
     protected $casts = [
         'status' => 'integer'
     ];
-        
+
     public function order_details(){
         return $this->belongsTo(PaymentLogs::class,"order_id");
     }
+
+
 }

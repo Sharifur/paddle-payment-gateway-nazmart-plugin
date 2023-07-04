@@ -4,6 +4,7 @@ namespace Modules\PaddlePaymentGateway\Http\Controllers;
 
 use App\Helpers\ModuleMetaData;
 use App\Models\PricePlan;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\PaddlePaymentGateway\Entities\PaddleProduct;
@@ -14,7 +15,6 @@ class PaddlePaymentGatewayAdminPanelController extends Controller
 {
     public function settings(){
         $all_subscriptions = PaddleSubscriptionHistory::orderBy('id','desc')->paginate(20);
-        
         $all_module_meta_data = (new ModuleMetaData("PaddlePaymentGateway"))->getExternalPaymentGateway();
         $paddle = array_filter($all_module_meta_data,function ( $item ){
             if ($item->name === "Paddle"){

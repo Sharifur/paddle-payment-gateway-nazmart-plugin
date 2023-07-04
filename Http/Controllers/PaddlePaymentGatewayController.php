@@ -207,30 +207,35 @@ class PaddlePaymentGatewayController extends Controller
                 "paddle_user_id" =>  \request()->paddle_user_id,
                 "status" => 1
             ]);
-            
-            
-            
-            $all_subscription = PaddleSubscriptionHistory::where('order_id',PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]))->orderBy('id','desc')->get()->skip(1);
-            
+
+            //todo add more filter to check that it is old payment or renew payment. if it is renew payment then do not cancel the request, check it by paddle subscription id, and plan name of each order, also check the tenant id
+            $current_order_details = PaymentLogs::find(PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]));
+            $all_subscription = PaddleSubscriptionHistory::where('order_id',PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]))->orderBy('id','desc')->get();//->skip(1);
+
             foreach($all_subscription as $sub){
-                //todo send api request to cancel all the subscription 
-                //todo update status in paddle subscriptoin history table... 
-                
-                  $req = Http::post($this->getBaseUrl(
-                        prefix: "vendors",
-                        version: "2.0",
-                        sandbox: true
-                    )."subscription/users_cancel",[
+                //todo send api request to cancel all the subscription
+                //todo update status in paddle subscription history table...
+
+                //todo check if it is same tenant_id Payment and tenant subscription id is same or not
+
+                if ($current_order_details->tenant_id === $sub?->order_details?->tenant_id && $sub->subscription_id != \request()->subscription_id){
+                    //todo check subscription id is same or not
+                    $req = Http::post($this->getBaseUrl(
+                            prefix: "vendors",
+                            version: "2.0",
+                            sandbox: true
+                        )."subscription/users_cancel",[
                         "vendor_id"=> get_static_option("paddle_vendor_id"),
                         "vendor_auth_code"=> get_static_option("paddle_vendor_auth_code"),
                         "subscription_id"=> $sub->subscription_id
                     ]);
-                $checkout_url = $req->object();
-                $sub->status = 0;
-                $sub->save();
-                //todo cehck if it is success then change status to 0 of this entity 
+                    $checkout_url = $req->object();
+                    $sub->status = 0;
+                    $sub->save();
+                }
+                //todo check if it is success then change status to 0 of this entity
             }
-            //todo: check if this user has an existing subscription, cancell all of them through paddle subscription cancel apis. 
+            //todo: check if this user has an existing subscription, cancell all of them through paddle subscription cancel apis.
             //todo: show list of active subscription in paddle settings page
 
             $payment_data = [
@@ -424,12 +429,19 @@ class PaddlePaymentGatewayController extends Controller
             $payment_log = PaymentLogs::where('id', $payment_data['order_id'])->first();
             $tenant = Tenant::find($payment_log->tenant_id);
 
-            \DB::table('tenants')->where('id', $tenant->id)->update([
+            //todo: check if old created date is today or not, if it is today, then did not update expired date....
+
+            $updateData = [
                 'renew_status' => $renew_status = is_null($tenant->renew_status) ? 0 : $tenant->renew_status+1,
                 'is_renew' => $renew_status == 0 ? 0 : 1,
                 'start_date' => $payment_log->start_date,
-                'expire_date' => get_plan_left_days($payment_log->package_id, $tenant->expire_date)
-            ]);
+
+            ];
+            if (!$tenant->created_at->isToday()){
+                $updateData[ 'expire_date'] = get_plan_left_days($payment_log->package_id, $tenant->expire_date);
+            }
+
+            \DB::table('tenants')->where('id', $tenant->id)->update($updateData);
 
 
         } catch (\Exception $exception) {
