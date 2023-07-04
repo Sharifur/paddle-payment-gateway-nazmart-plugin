@@ -32,7 +32,11 @@
                             <tr>
                                 <td>{{$pod->id}}</td>
                                 <td>{{$pod?->price_plan?->title}}</td>
+<<<<<<< HEAD
                                 <td>{{ \App\Enums\PricePlanTypEnums::getText($pod?->price_plan?->type ?? 7)}}</td>
+=======
+                                <td>{{ \App\Enums\PricePlanTypEnums::getText($pod?->price_plan?->type ?? 9)}}</td>
+>>>>>>> 7ebd50f74fc5e585e217faf62c6dd0861cce6237
                                 <td>{{$pod->product_id}}</td>
                                 <td>
                                     <a href="#" data-settings="{{json_encode(["id" => $pod->id,"price_plan" => $pod->price_plan_id,"product_id" => $pod->product_id])}}" class="btn btn-info btn-sm paddle_product_edit" data-bs-toggle="modal" data-bs-target="#paddle_product_edit"><i class="mdi mdi-pencil"></i></a>
