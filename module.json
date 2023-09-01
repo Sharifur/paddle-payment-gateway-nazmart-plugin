@@ -1,46 +1,39 @@
 {
-    "name":"PaddlePaymentGateway",
-    "alias":"paddlepaymentgateway",
-    "description":"",
-    "keywords":[
-       
-    ],
-    "priority":0,
-    "providers":[
+   "name": "PaddlePaymentGateway",
+   "alias": "paddlepaymentgateway",
+   "description": "",
+   "keywords": [],
+   "priority": 0,
+   "providers": [
        "Modules\\PaddlePaymentGateway\\Providers\\PaddlePaymentGatewayServiceProvider"
-    ],
-    "aliases":{
-       
-    },
-    "files":[
-       
-    ],
-    "requires":[
-       
-    ],
-    "nazmartMetaData":{
-       "paymentGateway":{
-          "name":"Paddle",
-          "slug":"paddle",
-          "tenant":false,
-          "chargeCustomerMethodNameSpace":"Modules\\PaddlePaymentGateway\\Http\\Controllers\\PaddlePaymentGatewayController",
-          "chargeCustomerMethodName":"chargeCustomer",
-          "test_mode":false,
-          "status":true,
-          "extraInfoMarkupBlade":"inline-paddle",
-          "logo_file":"payment-logo.jpeg",
-          "admin_settings":{
-             "show_admin_landlord":true,
-             "show_admin_tenant":false,
-             "menu_item":[
-                {
-                   "id":"paddle-settings-menu",
-                   "label":"Paddle Settings",
-                   "route":"paddle.landlord.admin.settings",
-                   "tenantRoute":"paddle.tenant.admin.settings"
-                }
-             ]
-          }
+   ],
+   "aliases": {},
+   "files": [],
+   "requires": [],
+   "nazmartMetaData": {
+       "admin_settings": {
+           "show_admin_landlord": true,
+           "show_admin_tenant": false,
+           "menu_item": [
+               {
+                   "id": "paddle-settings-menu",
+                   "label": "Paddle Settings",
+                   "route": "paddle.landlord.admin.settings",
+                   "tenantRoute": "paddle.tenant.admin.settings",
+                   "parent": null
+               }
+           ]
+       },
+       "paymentGateway": {
+           "name": "Paddle",
+           "slug": "paddle",
+           "tenant": false,
+           "chargeCustomerMethodNameSpace": "Modules\\PaddlePaymentGateway\\Http\\Controllers\\PaddlePaymentGatewayController",
+           "chargeCustomerMethodName": "chargeCustomer",
+           "test_mode": true,
+           "status": true,
+           "extraInfoMarkupBlade": "inline-paddle",
+           "logo_file": "payment-logo.jpeg"
        }
-    }
- }
+   }
+}
