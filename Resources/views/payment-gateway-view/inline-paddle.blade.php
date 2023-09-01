@@ -8,44 +8,60 @@
    data-passthrough="{{json_encode(["order_id" => 123])}}"
    data-email="email@example.com"
 >Buy Now!</a>
-<div class="form-group btn-wrapper mt-4">
+<div class="btn-wrapper mt-4">
     <button class="boxed-btn btn-saas btn-block paddle-order-button cmn-btn cmn-btn-bg-1" type="button">Order Package</button>
 </div>
 <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
 <script type="text/javascript">
     //if user select paddle then hide send a request to the server with all order info so that i can send users to paddle server for overlay checkout
-    // document.addEventListener("DOMContentLoaded", (event) => {
-
+    document.addEventListener("DOMContentLoaded", (event) => {
     @if(request()->is("landlord/wallet-history*"))
     document.querySelector('.payment-gateway-wrapper li[data-gateway="paddle"]').style.display = "none";
     @endif
-    let formSubmitButton = document.querySelector("form.contact-page-form.custom--form.order-form button[type='submit']");
-    var selectedPaymentGateway = document.querySelector('input[name="payment_gateway"]')?.value;
+
+    @if(request()->is("user-home*"))
+        let formContainer = document.querySelector("#user_add_subscription_form");
+    @else
+        let formContainer = document.querySelector("form.contact-page-form.custom--form.order-form");
+    @endif
+    let formSubmitButton = formContainer.querySelector('.form-group button')
+    var selectedPaymentGateway = formContainer.querySelector('input[name="selected_payment_gateway"]')?.value;
     let paymentGatewayRenderLi = document.querySelectorAll(".payment-gateway-wrapper ul li");
-    if( selectedPaymentGateway === "paddle"){
-        formSubmitButton.style.display = "none";
-    }
-    let newPaddleSubmitButton = document.querySelector("form.contact-page-form.order-form button[type='button']");
-    // document).querySelector("form.contact-page-form.order-form button[type='submit']");
+
+    @if(request()->is("user-home*"))
+            if( selectedPaymentGateway === "paddle"){
+                formSubmitButton.style.display = "none";
+            }
+    @endif
+
+    let newPaddleSubmitButton = formContainer.querySelector(".paddle-order-button");
     newPaddleSubmitButton.addEventListener("click",function(event){
         event.preventDefault();
         let formContainer = document.querySelector("form.contact-page-form.order-form");
-        // formContainer.addEventListener("submit",function (event){
-        //     event.preventDefault();
-        //
-        // })ьзЬ
         var paddleButton = document.getElementById("paddle_trigger_button");
         var planType = document.querySelector('select[name="subdomain"]').value;
         var subdomainvalue = planType;
-        var customDomain = document.querySelector('input[name="custom_subdomain"]').value;
-        // console.log(planType)
+        var customDomain = document.querySelector('input[name="custom_subdomain"]')?.value;
         if( planType == "custom_domain__dd"){
             subdomainvalue = customDomain;
-            //      //customDomain = document.querySelector('input[name="custom_subdomain"]').value;
         }
 
-        // console.log(subdomainvalue)
 
+        @if(request()->is("user-home*"))
+            let themeSlug = document.querySelector('select[name="theme_slug"]').value;
+            let package_id = document.querySelector('select[name="package"]').value;
+        @else
+            let themeSlug = document.querySelector('input[name="theme_slug"]').value;
+            let package_id = document.querySelector('input[name="package_id"]').value;
+        @endif
+        if(themeSlug == ''){
+            alert('{{__('Select a theme')}}');
+            return;
+        }
+        if(package_id == ''){
+            alert('{{__('Select a package')}}');
+            return;
+        }
         //todo submit ajax requwest with all the below information then get json response from the paddle payment gateway controller
         $.ajax({
             url : "{{route('landlord.frontend.order.payment.form')}}",
@@ -53,16 +69,16 @@
             data: {
                 _token: "{{csrf_token()}}",
                 payment_gateway: 'paddle',
-                package_id: document.querySelector('input[name="package_id"]').value,
+                package_id: package_id,
                 name: document.querySelector('input[name="name"]').value,
                 email: document.querySelector('input[name="email"]').value,
                 subdomain: subdomainvalue,
                 custom_subdomain: planType == "custom_domain__dd" ? subdomainvalue :customDomain,
-                theme_slug: document.querySelector('input[name="theme_slug"]').value,
+                theme_slug: themeSlug,
                 selected_payment_gateway: 'paddle',
             },
             success: function(data){
-                console.log(data);
+                // console.log(data);
                 {{--data-product="51090"--}}
                     {{--data-title="test title"--}}
                     {{--data-customer="test name"--}}
@@ -103,16 +119,28 @@ trasaction_id:
         paymentGatewayRenderLi[i].addEventListener("click",function(event){
             event.preventDefault();
             selectedPaymentGateway = paymentGatewayRenderLi[i].getAttribute("data-gateway");
-            console.log(selectedPaymentGateway)
+            let subscriptionModal = document.querySelector("#user_add_subscription");
             if( selectedPaymentGateway === "paddle"){
-                formSubmitButton.style.display = "none";
+                @if(!request()->is("user-home*"))
+                    formSubmitButton.style.display = "none";
+                @endif
+
+                if(subscriptionModal !== null){
+                    subscriptionModal.querySelector('.modal-footer').style.display = 'none';
+                }
             }else{
-                formSubmitButton.style.display = "block";
+                @if(!request()->is("user-home*"))
+                    formSubmitButton.style.display = "block";
+                @endif
+
+                if(subscriptionModal !== null){
+                    subscriptionModal.querySelector('.modal-footer').style.display = 'block';
+                }
             }
         });
     }
 
-    // });
+    });
 
 
     // ,function (e){

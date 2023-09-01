@@ -14,7 +14,12 @@ use Modules\PaddlePaymentGateway\Entities\PaddleSubscriptionHistory;
 class PaddlePaymentGatewayAdminPanelController extends Controller
 {
     public function settings(){
-        $all_subscriptions = PaddleSubscriptionHistory::orderBy('id','desc')->paginate(20);
+        
+        // $all_subscription = PaddleSubscriptionHistory::where('order_id',44)->orderBy('id','desc')->get()->skip(1);
+        
+        // dd($all_subscription);
+        
+        $all_subscriptions = PaddleSubscriptionHistory::with('order_details')->orderBy('id','desc')->paginate(10);
         $all_module_meta_data = (new ModuleMetaData("PaddlePaymentGateway"))->getExternalPaymentGateway();
         $paddle = array_filter($all_module_meta_data,function ( $item ){
             if ($item->name === "Paddle"){

@@ -167,7 +167,7 @@ class PaddlePaymentGatewayController extends Controller
               'p_signature' => 'NbG6NxJ9DtQr9H1rsMr8dJ/RL05HqcuZbnIOFzPV78n+JZzUhyPwSXrpe2NR1EJjhdsoIQtesIomrstkEnVkKMPrL7TveXc9LI9S+Yv4GqysoMF5fwLPATcID9dm+i8P3NkV2zwtuV+ErajI/2Rw0XhAyYTf3fsDAR5g8ukNm+WnJLi2z+57oZp4OiOlPygs/95grcfsoVUSXQf0CEzTwBn/mLRhQj0Ol0lYQQ29xPaHcWELEBpAp+95aY+boX0RRup9k3hkCXtHYMazED1qahDeciNAZQLUwJyc59SNo7xF5lcur2Cuvgtq1SHHtztEgR6s4dd76BwLUFoW+oSTPSUbJFn+uCndW7UwO00xN1xwY1RAJGHkpSoypCfdj4KJ8P8qBF1vqaNGUWp4EOyl3RTYpVgv4aqwFvKEfbx1t4pwecInl0AmdxWYDkNvLKPM0a2T8hUeOt4n4fBfrnF2TPwCFGPAJ6DCxvA25FfED1+ht4bma4+RHbyAGi1AFfcCFuQThaiTkpWJy/JBkrxUsYsZns+hk4lGrfyk33nf9oJQKEcZvRazDi7C1SfR22Ai+oMi8xshmey3f5aWqnSEASqL9AK1+bnRssv7zNgK4XUHY1rDNaQkEEe2ywfX4QLycfNvmrGZa64GxDXejXxi8Fs5T3gVPPWUbBogVytc9zc=',
          )
         */
-        // \Log::info($request->all());
+        \Log::info($request->all());
 
         $passthrough = json_decode($request->passthrough,true);
         // Log::info($passthrough);
@@ -193,6 +193,12 @@ class PaddlePaymentGatewayController extends Controller
         if($verification == 1) {
             // \Log::info('Yay! Signature is valid!');
             echo 'Yay! Signature is valid!';
+            
+            $paddle_user_id = \request()->paddle_user_id;
+            
+            if(empty($paddle_user_id)){
+                $paddle_user_id = \request()->user_id;
+            }
 
             PaddleSubscriptionHistory::updateOrCreate([
                 'order_id' => PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]),
@@ -204,13 +210,14 @@ class PaddlePaymentGatewayController extends Controller
                 "checkout_id" =>  \request()->checkout_id,
                 "subscription_payment_id" =>  \request()->subscription_payment_id,
                 "subscription_plan_id" =>  \request()->subscription_plan_id,
-                "paddle_user_id" =>  \request()->paddle_user_id,
+                "paddle_user_id" =>  $paddle_user_id,
+                "paddle_order_id" =>  $request[$transaction_id_column] ?? '',
                 "status" => 1
             ]);
 
             //todo add more filter to check that it is old payment or renew payment. if it is renew payment then do not cancel the request, check it by paddle subscription id, and plan name of each order, also check the tenant id
             $current_order_details = PaymentLogs::find(PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]));
-            $all_subscription = PaddleSubscriptionHistory::where('order_id',PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]))->orderBy('id','desc')->get();//->skip(1);
+            $all_subscription = PaddleSubscriptionHistory::where('order_id',PaymentGatewayHelpers::unwrapped_id($passthrough["order_id"]))->orderBy('id','desc')->get()->skip(1);
 
             foreach($all_subscription as $sub){
                 //todo send api request to cancel all the subscription
@@ -230,9 +237,10 @@ class PaddlePaymentGatewayController extends Controller
                         "subscription_id"=> $sub->subscription_id
                     ]);
                     $checkout_url = $req->object();
-                    $sub->status = 0;
-                    $sub->save();
                 }
+                PaddleSubscriptionHistory::find($sub->id)->update([
+                    "status" => 0
+                ]);
                 //todo check if it is success then change status to 0 of this entity
             }
             //todo: check if this user has an existing subscription, cancell all of them through paddle subscription cancel apis.

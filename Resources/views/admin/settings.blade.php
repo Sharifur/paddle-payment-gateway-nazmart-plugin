@@ -32,11 +32,7 @@
                             <tr>
                                 <td>{{$pod->id}}</td>
                                 <td>{{$pod?->price_plan?->title}}</td>
-<<<<<<< HEAD
                                 <td>{{ \App\Enums\PricePlanTypEnums::getText($pod?->price_plan?->type ?? 7)}}</td>
-=======
-                                <td>{{ \App\Enums\PricePlanTypEnums::getText($pod?->price_plan?->type ?? 9)}}</td>
->>>>>>> 7ebd50f74fc5e585e217faf62c6dd0861cce6237
                                 <td>{{$pod->product_id}}</td>
                                 <td>
                                     <a href="#" data-settings="{{json_encode(["id" => $pod->id,"price_plan" => $pod->price_plan_id,"product_id" => $pod->product_id])}}" class="btn btn-info btn-sm paddle_product_edit" data-bs-toggle="modal" data-bs-target="#paddle_product_edit"><i class="mdi mdi-pencil"></i></a>
@@ -75,8 +71,8 @@
                 </div>
             </div>
         </div>
-        
-        
+
+
         <div class="col-12 stretch-card mt-3">
             <div class="card ">
                 <div class="card-body">
@@ -87,7 +83,9 @@
                             <th>ID</th>
                             <th>Order ID</th>
                             <th>Subscription ID</th>
-                            <th>Checkout ID</th>
+                            <th>Paddle Order ID</th>
+                            <th>Subdomain</th>
+                            <th>Status</th>
                         </thead>
                         <tbody>
                         @foreach($all_subscriptions as $sub)
@@ -95,21 +93,22 @@
                                 <td>{{$sub->id}}</td>
                                 <td>{{$sub->order_id}}</td>
                                 <td>{{$sub->subscription_id}}</td>
-                                <td>{{$sub->checkout_id}}</td>
-                                <td> 
+                                <td>{{$sub->paddle_order_id}}</td>
+                                <td>
                                     <span class="d-inline-block p-1 alert-{{$sub->status === 0 ? 'danger' : 'success'}}">{{$sub->status === 0 ? 'cancel' : 'active' }}</span>
                                 </td>
+                                <td>{{$sub->order_details?->tenant_id}}</td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
-                    <div class="pagination-wrapper">
+                    <div class="pagination-wrapper mt-5 justify-content-center d-flex">
                         {!! $all_subscriptions->links() !!}
                     </div>
                 </div>
             </div>
         </div>
-        
+
     </div>
     <div class="modal fade" id="paddle_product_add" aria-hidden="true">
         <div class="modal-dialog ">
@@ -189,9 +188,9 @@
                 e.preventDefault();
                 let allSettings = $(this).data("settings");
                 let modalContainer = $("#paddle_product_edit")
-;                modalContainer.find("input[name='id']").val(allSettings.id)
-;                modalContainer.find("input[name='product_id']").val(allSettings.product_id)
-;                modalContainer.find("select[name='price_plan_id'] option[value='"+allSettings.price_plan+"']").attr("selected",true)
+                modalContainer.find("input[name='id']").val(allSettings.id)
+                modalContainer.find("input[name='product_id']").val(allSettings.product_id)
+                modalContainer.find("select[name='price_plan_id'] option[value='"+allSettings.price_plan+"']").attr("selected",true)
 
             });
             $(document).on("click",".paddle_product_delete",function (e){
